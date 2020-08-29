@@ -45,7 +45,7 @@
 ;; numbers for these Kennzahlen from the actual accounts for a given
 ;; time period, and will write it to some XML file as required by
 ;; e.g. the Winston software
-;; http://www.felfri.de/winston/schnittstellen.htm
+;; https://www.felfri.de/winston/schnittstellen.htm
 ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; This program is free software; you can redistribute it and/or
@@ -174,13 +174,13 @@
              (tax-entity-codes (assv-ref categories sym))
              (category (assv-ref tax-entity-codes code))
              ((>= (vector-length category) 7)))
-                (gnc:txf-get-code-info categories code 6 tax-entity-type)))
+    (gnc:txf-get-code-info categories code 6 tax-entity-type)))
 (define (gnc:txf-get-last-year categories code tax-entity-type)
   (and-let* ((sym (string->symbol tax-entity-type))
              (tax-entity-codes (assv-ref categories sym))
              (category (assv-ref tax-entity-codes code))
              ((>= (vector-length category) 8)))
-                (gnc:txf-get-code-info categories code 7 tax-entity-type)))
+    (gnc:txf-get-code-info categories code 7 tax-entity-type)))
 
 (define (gnc:txf-get-help categories code)
   (or (assv-ref txf-help-strings code)
@@ -192,7 +192,7 @@ Fehlermeldungen + Dankschreiben an: stoll@bomhardt.de"
 
 (define (gnc:txf-get-codes categories tax-entity-type)
   (and-let* ((sym (if (string-null? tax-entity-type)
-                                               'Ind
+                      'Ind
                       (string->symbol tax-entity-type)))
              (tax-entity-codes (assv-ref categories sym)))
     (map car tax-entity-codes)))
@@ -200,7 +200,7 @@ Fehlermeldungen + Dankschreiben an: stoll@bomhardt.de"
 
 (define (gnc:txf-get-code-info categories code index tax-entity-type)
   (and-let* ((sym (if (string-null? tax-entity-type)
-                                              'Ind
+                      'Ind
                       (string->symbol tax-entity-type)))
              (tax-entity-codes (assv-ref categories sym))
              (category (assv-ref tax-entity-codes code)))
