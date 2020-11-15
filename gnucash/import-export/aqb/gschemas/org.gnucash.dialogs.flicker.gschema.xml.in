@@ -1,0 +1,24 @@
+<schemalist gettext-domain="@PROJECT_NAME@">
+
+  <schema id="org.gnucash.dialogs.flicker" path="/org/gnucash/dialogs/flicker/">
+    <key name="window-size" type="(ii)">
+      <default>(-1,-1)</default>
+      <summary>Last window size</summary>
+      <description>This setting describes the size of the window when it was last closed.
+        The numbers are the width and height of the window. </description>
+    </key>
+    <key name="barwidth" type="u">
+      <default>44</default>
+      <summary>Last value of the barwidth</summary>
+      <description>This value is the setting for the "Bar Width" field.
+        The user can adjust the distance between the flicker bars to the sensors of his TAN generator.</description>
+    </key>
+    <key name="delay" type="u">
+      <default>50</default>
+      <summary>Sets the delaytime of the flickering grafic</summary>
+      <description>This setting changes the flashing speed of the flicker display.
+        The display changes faster with smaller values.</description>
+    </key>
+  </schema>
+
+</schemalist>
