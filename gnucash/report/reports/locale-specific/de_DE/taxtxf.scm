@@ -4078,13 +4078,17 @@
                       (list
                        "<WinstonAusgang>" crlf
                        "  <Formular Typ=\"UST\"></Formular>" crlf
+                       ;; FIXME: Get this Ordnungsnummer somehow
                        "  <Ordnungsnummer>" tax-nr "</Ordnungsnummer>" crlf
-                       "  <AnmeldeJahr>" to-year "</AnmeldeJahr>" crlf
+                       ;;"<software>GnuCash</software>" crlf
+                       ;;"<version>" gnc:version "</version>" crlf
+                       ;; today-date crlf
+                       "<AnmeldeJahr>" to-year "</AnmeldeJahr>" crlf
+                       ;; FIXME: Find out what this should mean
                        "  <AnmeldeZeitraum>1</AnmeldeZeitraum>" crlf
                        (map (cut handle-level-x-account 1 <>) selected-accounts)
                        "</WinstonAusgang>")
-                      port "taxtxf-de.scm - "))))
-            doc)
+                      port "taxtxf-de.scm - "))))            doc)
           (begin			; else do tax report
             (gnc:html-document-set-style! 
              doc "blue"
