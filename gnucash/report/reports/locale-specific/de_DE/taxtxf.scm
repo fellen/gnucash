@@ -2,7 +2,7 @@
 ;; by  Richard -Gilligan- Uschold
 ;;
 ;; Tax report for GnuCash 4.1 Deutsch
-;; ==================================
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 
 ;; ###  JW 2020-08-07:	tried to add Umsatzsteuerreport
 ;; ###  JW 2020-08-07:	modified V4.1 US Version from 3.10 DE version
@@ -42,7 +42,7 @@
 ;; Prints data between the From and To dates, inclusive.
 ;; 
 ;; FIXME: make alternate periods ON OFF selectable as a preference
-;; ===== for now: we will not use alternate periods, we are NOT in the US
+;;;;;;;; for now: we will not use alternate periods, we are NOT in the US
 ;;
 ;; Optional alternate periods:
 ;; "Last Year", "1st Est Tax Quarter", ... "4th Est Tax Quarter"
@@ -64,26 +64,26 @@
 ;;
 ;; November, 2009 Update:
 ;;
-;; 	Add support for multiple copies of Forms/Schedules
-;; 	Add support for Format 6
-;; 	Use Form/Schedule line #'s to sort report.
-;; 	Update from "V037" to "V041"
-;; 	Add support for taxpayer types other than F1040
+;; Add support for multiple copies of Forms/Schedules
+;; Add support for Format 6
+;; Use Form/Schedule line #'s to sort report.
+;; Update from "V037" to "V041"
+;; Add support for taxpayer types other than F1040
 ;;
 ;; September, 2010 Update:
 ;;
-;; 	Add support for code N673, Format 4
+;; Add support for code N673, Format 4
 ;;
 ;; September, 2012 Update:
 ;;
-;; 	Add support of book option for num-source; use function gnc-get-num-action in
-;; 	place of xaccTransGetNum and function gnc-get-action-num in place of
-;; 	xaccSplitGetAction and modify report headings accordingly
+;; Add support of book option for num-source; use function gnc-get-num-action in
+;; place of xaccTransGetNum and function gnc-get-action-num in place of
+;; xaccSplitGetAction and modify report headings accordingly
 ;;
 ;; February, 2013 Update:
 ;;
-;; 	Fix beginning balance sign and signs for Transfer From/To amounts for
-;; 	liability/equity accounts
+;; Fix beginning balance sign and signs for Transfer From/To amounts for
+;; liability/equity accounts
 ;;
 ;; January, 2019 Update:
 ;;
@@ -141,7 +141,7 @@
 ;                        "CURRENCY"
 ;                        "EUR"))
 
-;; 2020-08-07 JW: USt Helper routines =================
+;; 2020-08-07 JW: USt Helper routines ;;;;;;;;;;;;;;;;;
 (define (make-level-collector num-levels)
   (let ((level-collector (make-vector num-levels)))
     (do ((i 0 (+ i 1)))
@@ -153,7 +153,7 @@
 
 (define levelx-collector (make-level-collector MAX-LEVELS))
 
-;; 2020-08-07 JW: USt Helper routines ==================END
+;; 2020-08-07 JW: USt Helper routines ;;;;;;;;;;;;;;;;;;END
 
 
 (define selected-accounts-sorted-by-form-line-acct (list))
@@ -171,13 +171,11 @@
 
 (define after-tax-day (< tax-day today))
 
-;; (define (make-split-list account split-filter-pred)
 (define (make-split-list account split-filter-pred)
   (filter split-filter-pred (xaccAccountGetSplitList account)))
 
 ;; returns a predicate that returns true only if a split is
 ;; between early-date and late-date
-;; (define (split-report-make-date-filter-predicate begin-date-t64 end-date-t64)
 (define (split-report-make-date-filter-predicate begin-date-t64 end-date-t64)
   (lambda (split)
     (let ((t64 (xaccTransGetDate (xaccSplitGetParent split))))
@@ -198,7 +196,6 @@
 
 ;; This is nearly identical to, and could be shared with
 ;; display-report-list-item in report-impl.scm. This adds warn-msg parameter
-;; (define (gnc:display-report-list-item item port warn-msg)
 (define (gnc:display-report-list-item item port warn-msg)
 
   (cond
@@ -221,8 +218,7 @@
 ;; 2020-08-07 JW: USt only uses Options c, d,f and g
 ;; we use two diffenerent option gegenerators
 
-;; =========EST Version =====
-;; (define (tax-options-generator)
+;; ;;;;;;;;;EST Version ;;;;;
 (define (tax-options-generator-EST)
   (define options (gnc:new-options))
   (define (gnc:register-tax-option new-option)
@@ -321,8 +317,7 @@
 
   options)
   
-;; =========UST Version =====
-;; (define (tax-options-generator-UST) 
+;; ;;;;;;;;;UST Version ;;;;;
   (define (tax-options-generator-UST)
   (define options (gnc:new-options))
   (define (gnc:register-tax-option new-option)
@@ -392,26 +387,23 @@
 
 (define txf-account-name "")
 
-;; 2020-08-07 JW: for Ust vvvvvvvvvvvvvvvvvvv=============
+;; 2020-08-07 JW: for Ust vvvvvvvvvvvvvvvvvvv;;;;;;;;;;;;;
 ;; stores assigned txf codes so we can check for duplicates
 (define txf-dups-alist '())
 
 (define (txf-payer? payer)
   (member payer (list 'current 'parent)))
   
-;; 2020-08-07 JW: for Ust ^^^^^^^^^^^^^^^^^^^=============END
+;; 2020-08-07 JW: for Ust ^^^^^^^^^^^^^^^^^^^;;;;;;;;;;;;;END
   
-;; (define (gnc:account-get-txf account)
 (define (gnc:account-get-txf account)
   (and (xaccAccountGetTaxRelated account)
        (not (equal? (gnc:account-get-txf-code account) 'N000))))
 
-;; (define (gnc:account-get-txf-code account)
 (define (gnc:account-get-txf-code account)
   (let ((code (xaccAccountGetTaxUSCode account)))
        (string->symbol (if (string-null? code) "N000" code))))
 
-;; (define (get-acct-txf-info info-type acct-type code)
 (define (get-acct-txf-info info-type acct-type code)
   (let ((categories (assv-ref
                      (list (cons ACCT-TYPE-INCOME txf-income-categories)
@@ -442,7 +434,6 @@
          get-info-fn
          (get-info-fn categories code (gnc-get-current-book-tax-type)))))
 
-;; (define (gnc:account-get-txf-payer-source account)
 (define (gnc:account-get-txf-payer-source account)
   (let ((pns (xaccAccountGetTaxUSPayerNameSource account)))
        (string->symbol (if (string-null? pns) "none" pns))))
@@ -450,7 +441,6 @@
 
 ;; 2020-08-07 JW: for UST vvvvvvvvvvvvvvv
 ;; check for duplicate txf codes
-;; (define (txf-check-dups account) 
 (define (txf-check-dups account) 
   (let* ((code (gnc:account-get-txf-code account))
          (item (assoc-ref txf-dups-alist code))
@@ -462,7 +452,6 @@
                                              (list account)))))))
 
 ;; Print error message for duplicate txf codes and accounts
-;; (define (txf-print-dups doc)
 (define (txf-print-dups doc)
   (let ((dups
          (apply append
@@ -508,27 +497,22 @@
 ;; some codes require special date handling, only one for now, Federal estimated
 ;; tax, qrtrly
 
-;; (define (txf-special-date? code)
 (define (txf-special-date? code)
   (member code (list 'N521)))
 
-;; (define (txf-beg-bal-only? code)
 (define (txf-beg-bal-only? code)
   (member code (list 'N440)))   ;only one so far: F8606, IRA basis at beg of year
 
-;; (define (fill-clamp-sp str len)
 (define (fill-clamp-sp str len)
   (string-append (substring (string-append str (make-string len #\space))
                             0 (- len 1)) " "))
 
-;; (define (fill-clamp str len)
 (define (fill-clamp str len)
   (string-append (substring (string-append str (make-string len #\space))
                             0 len)))
 
-;; 2020-08-07 JW: for UST =============
+;; 2020-08-07 JW: for UST ;;;;;;;;;;;;;
 
-;; (define (make-header-row table max-level)
 (define (make-header-row table max-level)
   (gnc:html-table-prepend-row!
    table
@@ -538,7 +522,6 @@
            (list (gnc:make-html-table-header-cell/markup
                   "number-header" (G_ "Total"))))))
 
-;; (define (make-sub-headers max-level)
 (define (make-sub-headers max-level)
   (if (<= max-level 1)
       '()
@@ -548,7 +531,6 @@
              (number->string (- max-level 1)))
             (make-sub-headers (- max-level 1)))))
 
-;; (define (render-txf-account account account-value d? date x? x-date)
 (define (render-txf-account account account-value d? date x? x-date)
   (let* ((print-info (gnc-account-print-info account #t))
          (txf? (gnc:account-get-txf account)))
@@ -642,7 +624,6 @@
 	"")))
 
 ;; Render any level
-;; (define (render-level-x-account table level max-level account lx-value
 (define (render-level-x-account table level max-level account lx-value
                                 suppress-0 full-names txf-date)
   (let* ((account-name (if txf-date	; special split
@@ -688,9 +669,8 @@
             end-cells))
           (if (= level 1) (make-header-row table max-level))))))
 
-;; 2020-08-07 JW: for UST =============END
+;; 2020-08-07 JW: for UST ;;;;;;;;;;;;;END
 
-;; (define (render-header-row table heading-line-text)
 (define (render-header-row table heading-line-text)
   (let ((heading (gnc:make-html-text)))
        (gnc:html-text-append! heading (gnc:html-markup-b heading-line-text))
@@ -705,7 +685,6 @@
   )
 )
 
-;; (define (render-account-detail-header-row table suppress-action-memo? format4?)
 (define (render-account-detail-header-row table suppress-action-memo? format4?)
   (gnc:html-table-append-row!
        table
@@ -738,7 +717,6 @@
   )
 )
 
-;; (define (render-total-row table total-amount total-line-text tax_code?
 (define (render-total-row table total-amount total-line-text tax_code?
                           transaction-details? end-bal-text total-amount-neg?
                           format4? cap-gain-sales-total cap-gain-basis-total)
@@ -821,7 +799,6 @@
   ) ;; end of let
 )
 
-;; (define (render-txf-account account account-value d? date x? x-date
 (define (render-txf-account account account-value d? date x? x-date
                             type code copy tax-entity-type sold-desc)
   (let* ((print-info (gnc-account-print-info account #f))
@@ -955,7 +932,6 @@
                 "^" crlf))
         "")))
 
-;; (define (process-currency-conversion split ...
 (define (process-currency-conversion split
                                      base-currency
                                      account-commodity
@@ -1112,7 +1088,6 @@
   )
 )
 
-;; (define (process-transaction-multi-transfer-detail split parent
 (define (process-transaction-multi-transfer-detail split parent
             base-currency full-names? trans-date trans-currency acct-type
             currency-conversion-date to-date transfer-table print-amnt format_type
@@ -1408,7 +1383,6 @@
 )
 
 ;; Process transaction detail; render, if appropriate; accum account totals
-;; (define (process-account-transaction-detail table account split-list
 (define (process-account-transaction-detail table account split-list
                 split-details? full-names? currency-conversion-date to-value
                 transaction-details? suppress-action-memo?
@@ -2012,7 +1986,7 @@
 ;;          accounts))
 
 
-;; 2020-08-07 JW: for Ust =============
+;; 2020-08-07 JW: for Ust ;;;;;;;;;;;;;
 ;; 2020-08-07  JW: This is the USt Version, works for ESt, too.
 
 ;; Recursively validate children if parent is not a tax account.
@@ -2027,10 +2001,9 @@
                     #f
                     #t)))
           accounts))
-;; 2020-08-07 JW: for Ust =============END          
+;; 2020-08-07 JW: for Ust ;;;;;;;;;;;;;END          
           
-;; ============================ This is the Einkommensteuer report generator =======
-;; (define (generate-tax-schedule report-name  
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;; This is the Einkommensteuer report generator ;;;;;;;
 (define (generate-tax-schedule report-name
                              report-description
                              report-obj
@@ -2072,7 +2045,6 @@
   ;; two codes, an additional 'form-line-acct' entry is created for the other
   ;; code so that either both codes are represented or neither.
   
-    ;; (define (make-form-line-acct-list accounts tax-year)
   (define (make-form-line-acct-list accounts tax-year)
      (map (lambda (account)
             (let* ((account-name (gnc-account-get-full-name account))
@@ -3749,8 +3721,7 @@
   )  ;end let*
 ) ;end define
 
-;; ============================ This is the USt report generator ===================
-;; (define (generate-tax-or-txf report-name    
+;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;; This is the USt report generator ;;;;;;;;;;;;;;;;;;;
 (define (generate-tax-or-txf report-name
                              report-description
                              report-obj
@@ -3763,7 +3734,6 @@
       (gnc:report-options report-obj) pagename optname)))
 
   ;; the number of account generations: children, grandchildren etc.
-  ;; (define (num-generations account gen)
   (define (num-generations account gen)
     (if (eq? (gnc-account-n-children account) 0)
 	(if (and (xaccAccountGetTaxRelated account)
@@ -3773,7 +3743,6 @@
 	(apply max (map (lambda (x) (num-generations x (1+ gen)))
                         (or (gnc-account-get-children-sorted account) '())))))
 
-;; (gnc:report-starting reportname)
   (gnc:report-starting reportname)
   (let* ((from-value (gnc:date-option-absolute-time 
                       (get-option gnc:pagename-general "From")))
@@ -4151,7 +4120,7 @@ Gehen Sie zu Bearbeiten -> Optionen Steuerbericht, um Konten entsprechend einzur
 	    (gnc:report-finished)
             doc)))))
 
-;; 2020-08-07 JW ==================== Einkommensteuerbericht ===============
+;; 2020-08-07 JW ;;;;;;;;;;;;;;;;;;;; Einkommensteuerbericht ;;;;;;;;;;;;;;;
 ;; (gnc:define-report-EST
 (gnc:define-report
  'version 1
@@ -4182,7 +4151,7 @@ Income Tax accounts.")
                   file-name)))
                   
 
-;; 2020-08-07 JW ==================== Umsatzsteuerreport ==================              
+;; 2020-08-07 JW ;;;;;;;;;;;;;;;;;;;; Umsatzsteuerreport ;;;;;;;;;;;;;;;;;;              
 ;; (gnc:define-report-UST
 (gnc:define-report
  'version 1
