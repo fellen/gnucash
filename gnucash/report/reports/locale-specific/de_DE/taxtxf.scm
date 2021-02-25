@@ -133,6 +133,7 @@
 (use-modules (gnucash gnome-utils))
 (use-modules (gnucash report))
 (use-modules (srfi srfi-1))
+(use-modules (ice-9 format))
 (use-modules (srfi srfi-26))
 
 ;; ########### This entry appears in the report menu of GnuCash
