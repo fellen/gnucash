@@ -1,31 +1,35 @@
 ;; -*-scheme-*-
-;; by  Richard -Gilligan- Uschold
+;; Tax report, country specific
+;; US version by Richard -Gilligan- Uschold,
+;; updated by J. Alex Aycinena, July 2008, October 2009
 ;;
-;; Tax report for GnuCash 4.1 Deutsch
+;; DE: 
+;; für GnuCash 4.1 UStVA + ESt
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 
-;; ###  JW 2020-08-07:	tried to add Umsatzsteuerreport
-;; ###  JW 2020-08-07:	modified V4.1 US Version from 3.10 DE version
-;; ###  JW 2020-01-12: 	changed references to "US Tax" etc  to  "base tax"
-;; ###  JW 2020-01-12: 	changed "USD-currency" to "base-currency" throughout the file
-;; ###  JW 2020-01-01: 	reviewed for GC V 3.8
-;; ###  JW 2020-05-02: 	reviewed for GC V 3.10
-;; ###  JW 2019-01-02: 	reviewed for GnuCash V 3.4
-;; ###  JW 2018-04-04: 	translated English phrases inline to German 
-;; ###  JW 2018-04-04: 	FIXME: make this translation items, 
-;;		once the private version is pushed into the publication queue
 ;;
-;; updated by  J. Alex Aycinena, July 2008, October 2009
+;; ###  JW 2020-08-07: tried to add Umsatzsteuerreport
+;; ###  JW 2020-08-07: modified V4.1 US Version from 3.10 DE version
+;; ###  JW 2020-01-12: changed references to "US Tax" etc  to  "base tax"
+;; ###  JW 2020-01-12: changed "USD-currency" to "base-currency" throughout the file
+;; ###  JW 2020-01-01: reviewed for GC V 3.8
+;; ###  JW 2020-05-02: reviewed for GC V 3.10
+;; ###  JW 2019-01-02: reviewed for GnuCash V 3.4
+;; ###  JW 2018-04-04: translated English phrases inline to German
+;; ###  JW 2018-04-04: FIXME: make this translation items,
+;;                     once the private version is pushed into the publication queue
 ;;
 ;; This report prints transaction details and account totals for accounts
-;; relevant to whatever tax scheme is active, sorted by form/schedule, copy, line
-;; and tax code, and exports TXF files for import to TaxCut, TurboTax, etc.
+;; relevant to whatever tax scheme is defined and activated by locale settings,
+;; sorted by form/schedule, copy, line and tax code,
+;; and exports TXF, XML or other files for import into tax software.
+;; 
+;; This version is for taxes in Germany and
+;; exports XML files for use by Winston, LibGeier, ElStEr, etc.
 ;;
 ;; For this to work, the user has to segregate taxable and not taxable
 ;; income to different accounts, as well as deductible and non-
 ;; deductible expenses and the accounts need to be referenced to the tax codes.
-;;
-;; However, there is no need to limit tax codes to just one account. 
+;; However, there is no need to limit tax codes to just one account.
 ;;
 ;; Tax codes can have contributions from more than one account -- called a 'payer'
 ;; (like N286 (Dividend, Ordinary) that can have the "payer" printed on
@@ -40,7 +44,7 @@
 ;;
 ;; Optionally, does NOT print tax codes and accounts with $0.00 values.
 ;; Prints data between the From and To dates, inclusive.
-;; 
+;;
 ;; FIXME: make alternate periods ON OFF selectable as a preference
 ;;;;;;;; for now: we will not use alternate periods, we are NOT in the US
 ;;
@@ -132,7 +136,7 @@
 (use-modules (srfi srfi-26))
 
 ;; ########### This entry appears in the report menu of GnuCash
-;; it will be translated 
+;; it will be translated
 (define reportname (N_ "Tax Schedule Report/TXF Export"))
 
 ;; 2020-08-07 JW: this will appear further down
@@ -149,7 +153,7 @@
       (vector-set! level-collector i (gnc:make-commodity-collector)))
     level-collector))
 
-(define MAX-LEVELS 16)			; Maximum Account Levels
+(define MAX-LEVELS 16)            ; Maximum Account Levels
 
 (define levelx-collector (make-level-collector MAX-LEVELS))
 
@@ -187,7 +191,7 @@
 ;; between early-date and late-date
 (define (split-report-make-date-filter-predicate-UST begin-date
                                                  end-date)
-  (lambda (split) 
+  (lambda (split)
     (let ((t
            (xaccTransGetDate
             (xaccSplitGetParent split))))
@@ -197,7 +201,6 @@
 ;; This is nearly identical to, and could be shared with
 ;; display-report-list-item in report-impl.scm. This adds warn-msg parameter
 (define (gnc:display-report-list-item item port warn-msg)
-
   (cond
    ((string? item) (display item port))
    ((null? item) #t)
@@ -211,7 +214,7 @@
   ((vector-ref levelx-collector (- level 1)) action arg1 arg2))
 
 ;; IRS asked congress to make the tax quarters the same as real quarters
-;;   This is the year it is effective.  
+;;   This is the year it is effective.
 ;; #########  for Germany we set this to the year 0, i.e. we always have 'real' years
 (define tax-qtr-real-qtr-year 0)
 
@@ -310,22 +313,19 @@
           (list->vector
            (list 'conv-to-report-date (N_ "Nearest report date") (N_ "Use nearest to report date.")))
     )))
-
   #t
-
   (gnc:options-set-default-section options gnc:pagename-general)
-
   options)
-  
+
 ;; ;;;;;;;;;UST Version ;;;;;
   (define (tax-options-generator-UST)
   (define options (gnc:new-options))
   (define (gnc:register-tax-option new-option)
     (gnc:register-option options new-option))
 
-  ;; date at which to report 
+  ;; date at which to report
   (gnc:options-add-date-interval!
-   options gnc:pagename-general 
+   options gnc:pagename-general
    (N_ "From") (N_ "To") "a")
 
   (gnc:register-tax-option
@@ -358,7 +358,7 @@
     "d" (N_ "Select accounts.")
     (lambda () '())
     #f #t))
-  
+
   (gnc:register-tax-option
    (gnc:make-simple-boolean-option
     gnc:pagename-display (N_ "Suppress $0.00 values")
@@ -376,11 +376,11 @@
 ;; Render txf information
 (define crlf (string #\return #\newline)) ; TurboTax seems to want these
 
-(define txf-last-payer "")	; if same as current, inc txf-l-count
-		; this only works if different
-		; accounts from the same payer are
-		; grouped in the accounts list
-(define txf-l-count 0)	; count repeated N codes
+(define txf-last-payer "") ; if same as current, inc txf-l-count
+                           ; this only works if different
+                           ; accounts from the same payer are
+                           ; grouped in the accounts list
+(define txf-l-count 0)     ; count repeated N codes
 
 ;; stores invalid txf codes so we can list
 (define txf-invalid-alist '())
@@ -393,9 +393,9 @@
 
 (define (txf-payer? payer)
   (member payer (list 'current 'parent)))
-  
+
 ;; 2020-08-07 JW: for Ust ^^^^^^^^^^^^^^^^^^^;;;;;;;;;;;;;END
-  
+
 (define (gnc:account-get-txf account)
   (and (xaccAccountGetTaxRelated account)
        (not (equal? (gnc:account-get-txf-code account) 'N000))))
@@ -441,7 +441,7 @@
 
 ;; 2020-08-07 JW: for UST vvvvvvvvvvvvvvv
 ;; check for duplicate txf codes
-(define (txf-check-dups account) 
+(define (txf-check-dups account)
   (let* ((code (gnc:account-get-txf-code account))
          (item (assoc-ref txf-dups-alist code))
          (payer (gnc:account-get-txf-payer-source account)))
@@ -460,8 +460,8 @@
                          (if (> cnt 1)
                              (let* ((acc (cadr x))
                                     (txf (gnc:account-get-txf acc)))
-                               (cons (string-append 
-                                      "Kennzahl \"" 
+                               (cons (string-append
+                                      "Kennzahl \""
                                       (symbol->string
                                        (gnc:account-get-txf-code acc))
                                       "\" hat Duplikate in "
@@ -496,7 +496,6 @@
 
 ;; some codes require special date handling, only one for now, Federal estimated
 ;; tax, qrtrly
-
 (define (txf-special-date? code)
   (member code (list 'N521)))
 
@@ -546,69 +545,69 @@
                                #f))
                ;; Only formats 1,3 implemented now! Others are treated as 1.
                (format (gnc:get-txf-format code (eq? type ACCT-TYPE-INCOME)))
-	       (value (string-append 
-		       (if (eq? type ACCT-TYPE-INCOME) ;; negate expenses. FIXME: Necessary?
-			   ""
-			   "-")
-		       (number->string 
-			(gnc-numeric-num
-			 (gnc-numeric-convert account-value (cond
-							     ((eq? format 2) 1)
-							     (else 100))
-					      3))))) ;; 3 is the GNC_HOW_TRUNC truncation rounding
-	       (payer-src (gnc:account-get-txf-payer-source account))
+           (value (string-append
+               (if (eq? type ACCT-TYPE-INCOME) ;; negate expenses. FIXME: Necessary?
+               ""
+               "-")
+               (number->string
+            (gnc-numeric-num
+             (gnc-numeric-convert account-value (cond
+                                 ((eq? format 2) 1)
+                                 (else 100))
+                          3))))) ;; 3 is the GNC_HOW_TRUNC truncation rounding
+           (payer-src (gnc:account-get-txf-payer-source account))
                (account-name (let* ((named-acct
-				    (if (eq? payer-src 'parent)
-					(gnc-account-get-parent account)
-					account))
-				    (name (xaccAccountGetName named-acct)))
-			       (if (not (string-null? name))
-				   name
-				   (begin
-				     (display
-				      (string-append
-				       "Failed to get name for account: "
-				       (gncAccountGetGUID named-acct)
-				       (if (not (eq? account named-acct))
-					   (string-append
-					    " which is the parent of "
-					    (gncAccountGetGUID account)))
-				       "\n"))
-				     "<NONE> -- See the Terminal Output"))))
+                    (if (eq? payer-src 'parent)
+                    (gnc-account-get-parent account)
+                    account))
+                    (name (xaccAccountGetName named-acct)))
+                   (if (not (string-null? name))
+                   name
+                   (begin
+                     (display
+                      (string-append
+                       "Failed to get name for account: "
+                       (gncAccountGetGUID named-acct)
+                       (if (not (eq? account named-acct))
+                       (string-append
+                        " which is the parent of "
+                        (gncAccountGetGUID account)))
+                       "\n"))
+                     "<NONE> -- See the Terminal Output"))))
                (action (if (eq? type ACCT-TYPE-INCOME)
                            (case code
                              ((N286 N488) "ReinvD")
                              (else "Ertraege"))
                            "Aufwendungen"))
                (category-key (if (eq? type ACCT-TYPE-INCOME)
-                                 (gnc:txf-get-category-key 
+                                 (gnc:txf-get-category-key
                                   txf-income-categories code "")
                                  (gnc:txf-get-category-key
                                   txf-expense-categories code "")))
                (value-name (if (equal? "ReinvD" action)
-                               (string-append 
+                               (string-append
                                 (substring value 1 (string-length value))
                                 " " account-name)
                                account-name))
                (l-value (if (= format 3)
                             (begin
-                              (set! txf-l-count 
+                              (set! txf-l-count
                                     (if (equal? txf-last-payer account-name)
                                         txf-l-count
                                         (+ 1 txf-l-count)))
                               (set! txf-last-payer account-name)
                               (number->string txf-l-count))
                             "1")))
-	  ;(display "render-txf-account \n")
-	  ;(display-backtrace (make-stack #t) (current-output-port))
+      ;(display "render-txf-account \n")
+      ;(display-backtrace (make-stack #t) (current-output-port))
 
-	  ;; FIXME: Here the actual rendering of one account entry is
-	  ;; done. Use the German format here.
+      ;; FIXME: Here the actual rendering of one account entry is
+      ;; done. Use the German format here.
           (list "  <Kennzahl Nr=\""
-		category-key
-		"\">"
+        category-key
+        "\">"
                 value
-		"</Kennzahl>" crlf))
+        "</Kennzahl>" crlf))
 ;                (case format
 ;                  ((3) (list "P" account-name crlf))
 ;                  (else (if (and x? (txf-special-split? code))
@@ -616,17 +615,17 @@
 ;                            '())))
 ;                (if x?
 ;                    (list "X" x-date-str " " (fill-clamp-sp account-name 31)
-;                          (fill-clamp-sp action 7) 
+;                          (fill-clamp-sp action 7)
 ;                          (fill-clamp-sp value-name 82)
 ;                          (fill-clamp category-key 15) crlf)
 ;                    '())
 ;                "^" crlf))
-	"")))
+    "")))
 
 ;; Render any level
 (define (render-level-x-account table level max-level account lx-value
                                 suppress-0 full-names txf-date)
-  (let* ((account-name (if txf-date	; special split
+  (let* ((account-name (if txf-date    ; special split
                            (gnc-print-time64 txf-date "%d.%m.%Y")
                            (if (or full-names (equal? level 1))
                                (gnc-account-get-full-name account)
@@ -650,7 +649,7 @@
                                  (gnc:make-html-table-cell #f)))
          (end-cells (make-list (- level 1) (gnc:make-html-table-cell #f))))
 
-    (if (and blue? (not txf-date))	; check for duplicate txf codes
+    (if (and blue? (not txf-date))    ; check for duplicate txf codes
         (txf-check-dups account))
 
     (if (or (not suppress-0) (= level 1)
@@ -941,7 +940,6 @@
                                      print-info
                                      neg?)
 
-  (let*
 ;; called if account-commodity does not equal base-currency or if
 ;;    trans-currency not equal base-currency
 ;; if trans-currency = base-currency and account-commodity does not equal
@@ -953,6 +951,8 @@
 ;; returns the converted amount, the conversion text, and, if the conversion
 ;;   price was looked up, the pricedb-lookup-price and addtitional text in
 ;;   a list
+
+  (let*
     ((splt-value (if (and split
                           (or (gnc-commodity-equiv trans-currency base-currency)
                               (gnc-commodity-equiv account-commodity
@@ -1001,7 +1001,7 @@
                                         base-currency
                      ;; Use midday as the transaction time so it matches a price
                      ;; on the same day.  Otherwise it uses midnight which will
-	                 ;; likely match a price on the previous day
+                     ;; likely match a price on the previous day
                                         (time64CanonicalDayTime lookup-date))
                               )
                               (begin ;; otherwise set flag and set to zero
@@ -1025,7 +1025,7 @@
                        print-info))
      (conversion-text (if missing-pricedb-entry?
                           (string-append
-                            "(Kein Eintrag in der priceDB zum Konvertieren von "
+                            "(Kein Eintrag in der Kurs-Datenbank zum Konvertieren von "
                             (gnc-commodity-get-mnemonic account-commodity)
                             " "
                             converted-qty
@@ -1386,7 +1386,7 @@
 (define (process-account-transaction-detail table account split-list
                 split-details? full-names? currency-conversion-date to-value
                 transaction-details? suppress-action-memo?
-	 shade-alternate-transactions? splits-period full-year? from-value
+                shade-alternate-transactions? splits-period full-year? from-value
                 tax-mode? show-TXF-data? base-currency account-type
                 tax-code acct-full-name acct-beg-bal-collector
                 acct-end-bal-collector copy tax-entity-type)
@@ -1749,7 +1749,7 @@
                             (gnc:make-html-table-cell/markup
                                          "date-cell"
                                          (gnc-print-time64 trans-date "%Y-%b-%d")))
-                       (gnc:html-table-set-style! num-table "table" 
+                       (gnc:html-table-set-style! num-table "table"
                                           'attribute (list "border" "0")
                                           'attribute (list "cellspacing" "0")
                                           'attribute (list "cellpadding" "0"))
@@ -2001,8 +2001,8 @@
                     #f
                     #t)))
           accounts))
-;; 2020-08-07 JW: for Ust ;;;;;;;;;;;;;END          
-          
+;; 2020-08-07 JW: for Ust ;;;;;;;;;;;;; END
+
 ;; ;;;;;;;;;;;;;;;;;;;;;;;;;;;; This is the Einkommensteuer report generator ;;;;;;;
 (define (generate-tax-schedule report-name
                              report-description
@@ -2029,22 +2029,22 @@
             (get-line-info year (cdr line-list)))
         ((<= (caar line-list) (string->number year)) (cadar line-list)))))
 
-  ;; List of entries, each containing a 
+  ;; List of entries, each containing a
   ;;
-  ;; form, form copy number, form line number, 
+  ;; form, form copy number, form line number,
   ;; tax-code (as string), account name, account, and, to avoid having
-  ;; to fetch again later, account type and tax-code as symbol. 
-  ;; 
-  ;; Only accounts
-  ;; that are tax related, with a tax code that is valid for the tax-entity-type
-  ;; and account type, are put on list, along with those assigned code N000.
-  ;; 
+  ;; to fetch again later, account type and tax-code as symbol.
+  ;;
+  ;; Only accounts that are tax related,
+  ;; with a tax code that is valid for the tax-entity-type and account type,
+  ;; are put on list, along with those assigned code N000.
+  ;;
   ;; Accounts that are not tax-related and have a tax code or are tax-related
-  ;; and have an invalid tax code are put on an error list. Codes N438 and N440
-  ;; have special processing: if an asset account is assigned to either of these
-  ;; two codes, an additional 'form-line-acct' entry is created for the other
+  ;; and have an invalid tax code are put on an error list.
+  ;; Codes N438 and N440 have special processing:
+  ;; if an asset account is assigned to either of these two codes,
+  ;; an additional 'form-line-acct' entry is created for the other
   ;; code so that either both codes are represented or neither.
-  
   (define (make-form-line-acct-list accounts tax-year)
      (map (lambda (account)
             (let* ((account-name (gnc-account-get-full-name account))
@@ -3259,7 +3259,7 @@
 
       (if (not tax-mode?) ; Do Txf mode
           (if tax-entity-type-valid?
-              (if file-name		; cancel TXF if no file selected
+              (if file-name        ; cancel TXF if no file selected
                   (let ((port (catch #t ;;e.g., system-error
                                  (lambda () (open-output-file file-name))
                                  (lambda (key . args)
@@ -3707,9 +3707,8 @@
                                  "US Steuerquartale anzeigen")
                              (if (equal? currency-conversion-date
                                          'conv-to-tran-date)
-                                 "Währungsumtauschdatum nächstgelegen zum Buchungsdatum wählen"
-                                 "Währungsumtauschdatum nächstgelegen zum Berichtsenddatum wählen")
-                             
+                                 "PriceDB lookups nearest to transaction date"
+                                 "PriceDB lookups nearest to report end date")
                           )
                         ))))
 
@@ -3730,27 +3729,27 @@
 
   (define (get-option pagename optname)
     (gnc:option-value
-     (gnc:lookup-option 
+     (gnc:lookup-option
       (gnc:report-options report-obj) pagename optname)))
 
   ;; the number of account generations: children, grandchildren etc.
   (define (num-generations account gen)
     (if (eq? (gnc-account-n-children account) 0)
-	(if (and (xaccAccountGetTaxRelated account)
-		 (txf-special-split? (gnc:account-get-txf-code account)))
-	    (+ gen 1)		; Est Fed Tax has a extra generation
-	    gen)	       		; no kids, return input
-	(apply max (map (lambda (x) (num-generations x (1+ gen)))
+    (if (and (xaccAccountGetTaxRelated account)
+         (txf-special-split? (gnc:account-get-txf-code account)))
+        (+ gen 1)              ; Est Fed Tax has a extra generation
+        gen)                   ; no kids, return input
+    (apply max (map (lambda (x) (num-generations x (1+ gen)))
                         (or (gnc-account-get-children-sorted account) '())))))
 
   (gnc:report-starting reportname)
-  (let* ((from-value (gnc:date-option-absolute-time 
+  (let* ((from-value (gnc:date-option-absolute-time
                       (get-option gnc:pagename-general "From")))
          (to-value (gnc:time64-end-day-time
-                    (gnc:date-option-absolute-time 		       
+                    (gnc:date-option-absolute-time
                      (get-option gnc:pagename-general "To"))))
          (alt-period (get-option gnc:pagename-general "Alternate Period"))
-         (suppress-0 (get-option gnc:pagename-display 
+         (suppress-0 (get-option gnc:pagename-display
                                  "Suppress $0.00 values"))
          (full-names (get-option gnc:pagename-display
                                  "Print Full account names"))
@@ -3760,7 +3759,7 @@
          ;; If no selected accounts, check all.
          (selected-accounts (if (not (null? user-sel-accnts))
                                 valid-user-sel-accnts
-                                (validate (reverse 
+                                (validate (reverse
                                            (gnc-account-get-children-sorted
                                             (gnc-get-current-root-account))))))
          (book (gnc-get-current-book))
@@ -3769,19 +3768,19 @@
                                           selected-accounts))
                           0))
          (max-level (min MAX-LEVELS (max 1 generations)))
-	 (work-to-do 0)
-	 (work-done 0)
+     (work-to-do 0)
+     (work-done 0)
 
          ;; Alternate dates are relative to from-date
          (from-date (gnc-localtime from-value))
          (from-value (gnc:time64-start-day-time
                       (let ((bdtm from-date))
-                        (if (member alt-period 
+                        (if (member alt-period
                                     '(last-year 1st-last 2nd-last
                                                 3rd-last 4th-last))
                             (set-tm:year bdtm (- (tm:year bdtm) 1)))
                         (set-tm:mday bdtm 1)
-                        (if (< (gnc:date-get-year bdtm) 
+                        (if (< (gnc:date-get-year bdtm)
                                tax-qtr-real-qtr-year)
                             (case alt-period
                               ((1st-est 1st-last last-year) ; Jan 1
@@ -3807,7 +3806,7 @@
 
          (to-value (gnc:time64-end-day-time
                     (let ((bdtm from-date))
-                      (if (member alt-period 
+                      (if (member alt-period
                                   '(last-year 1st-last 2nd-last
                                               3rd-last 4th-last))
                           (set-tm:year bdtm (- (tm:year bdtm) 1)))
@@ -3815,7 +3814,7 @@
                       ;; The exact same code, in from-value, further above,
                       ;;   only subtraces one!  Go figure!
                       ;; So, we add one back below!
-                      (if (member alt-period 
+                      (if (member alt-period
                                   '(last-year 1st-last 2nd-last
                                               3rd-last 4th-last))
                           (set-tm:year bdtm (+ (tm:year bdtm) 1)))
@@ -3829,7 +3828,7 @@
                             ((3rd-est 3rd-last) ; Aug 31
                              (set-tm:mon bdtm 7))
                             ((4th-est 4th-last last-year) ; Dec 31
-                             (set-tm:mon bdtm 11)) 
+                             (set-tm:mon bdtm 11))
                             (else (set! bdtm (gnc-localtime to-value))))
                           ;; Tax quaters equal Real quarters
                           (case alt-period
@@ -3843,7 +3842,7 @@
                              (set-tm:mon bdtm 8))
                             ((4th-est 4th-last last-year) ; Dec 31
                              (set-tm:mon bdtm 11))
-                            (else 
+                            (else
                              (set! bdtm (gnc-localtime to-value)))))
                       (set-tm:isdst bdtm -1)
                       (gnc-mktime bdtm))))
@@ -3857,7 +3856,7 @@
     (define (txf-special-splits-period account from-value to-value)
       (if (and (xaccAccountGetTaxRelated account)
                (txf-special-split? (gnc:account-get-txf-code account)))
-          (let* 
+          (let*
               ((full-year?
                 (let ((bdto (gnc-localtime to-value))
                       (bdfrom (gnc-localtime from-value)))
@@ -3889,10 +3888,10 @@
                            to-value)))
             (list from-est to-est full-year?))
           #f))
-    
+
     ;; for quarterly estimated tax payments, we need to go one level down
     ;; and get data from splits
-    (define (handle-txf-special-splits level account from-est to-est 
+    (define (handle-txf-special-splits level account from-est to-est
                                        full-year? to-value)
       (let*
           ((split-filter-pred (split-report-make-date-filter-predicate-UST
@@ -3901,12 +3900,12 @@
            (lev  (if (>= max-level (+ 1 level))
                      (+ 1 level)
                      level)))
-        (map (lambda (spl) 
+        (map (lambda (spl)
                (let* ((date (xaccTransGetDate
                              (xaccSplitGetParent spl)))
                       (amount (xaccSplitGetAmount spl))
                       ;; TurboTax 1999 and 2000 ignore dates after Dec 31
-                      (fudge-date (if (and full-year? 
+                      (fudge-date (if (and full-year?
                                            (< to-value date))
                                       to-value
                                       date)))
@@ -3916,30 +3915,30 @@
                      (render-txf-account account amount
                                          #t fudge-date  #t date))))
              split-list)))
-    
+
     (define (count-accounts level accounts)
       (if (< level max-level)
-	  (let ((sum 0))
-	    (for-each (lambda (x)
-		   (if (gnc:account-is-inc-exp? x)
-		       (set! sum (+ sum (+ 1 (count-accounts (+ 1 level)
-							     (gnc-account-get-children x)))))
-		       0))
-		 accounts)
-	    sum)
-	  (length accounts)))
+      (let ((sum 0))
+        (for-each (lambda (x)
+           (if (gnc:account-is-inc-exp? x)
+               (set! sum (+ sum (+ 1 (count-accounts (+ 1 level)
+                                 (gnc-account-get-children x)))))
+               0))
+         accounts)
+        sum)
+      (length accounts)))
 
     (define (handle-level-x-account level account)
       (let ((type (xaccAccountGetType account)))
-	(set! work-done (+ 1 work-done))
-	(gnc:report-percent-done (* 100 (if (> work-to-do 0)
-					    (/ work-done work-to-do)
-					    1)))
+    (set! work-done (+ 1 work-done))
+    (gnc:report-percent-done (* 100 (if (> work-to-do 0)
+                        (/ work-done work-to-do)
+                        1)))
         (if (gnc:account-is-inc-exp? account)
             (let* ((children (gnc-account-get-children-sorted account))
-                   (to-special #f)	; clear special-splits-period
+                   (to-special #f)        ; clear special-splits-period
                    (from-special #f)
-                   (childrens-output 
+                   (childrens-output
                     (if (null? children)
                         (let* ((splits-period (txf-special-splits-period
                                                account from-value to-value)))
@@ -3952,7 +3951,6 @@
                                                            to-special
                                                            full-year?
                                                            to-value))
-                              
                               '()))
 
                         (map (lambda (x)
@@ -3961,7 +3959,7 @@
                                    '()))
                              (reverse children))))
 
-                   (account-balance 
+                   (account-balance
                     (if (xaccAccountGetTaxRelated account)
                         (if to-special
                             (gnc:account-get-balance-interval
@@ -3995,7 +3993,7 @@
                                                  max-level account
                                                  account-balance
                                                  suppress-0 full-names #f)
-                         (list 
+                         (list
                           ;(if (not to-special)
                           ;    (render-txf-account account account-balance
                           ;                        #f #f #t from-value)
@@ -4023,10 +4021,10 @@
 
     (let ((from-date  (gnc-print-time64 from-value "%d.%m.%Y"))
           (to-date    (gnc-print-time64 to-value "%d.%m.%Y"))
-	  (to-year    (gnc-print-time64 to-value "%Y"))
+      (to-year    (gnc-print-time64 to-value "%Y"))
           (today-date (gnc-print-time64 (time64CanonicalDayTime (current-time))
                                         "%d.%m.%Y"))
-	  (tax-nr (gnc:option-get-value book gnc:*tax-label* gnc:*tax-nr-label*)))
+      (tax-nr (gnc:option-get-value book gnc:*tax-label* gnc:*tax-nr-label*)))
 
       ;; Now, the main body
       ;; Reset all the balance collectors
@@ -4038,7 +4036,7 @@
       (set! txf-l-count 0)
       (set! work-to-do (count-accounts 1 selected-accounts))
 
-      (if (not tax-mode?)		; Do Txf mode
+      (if (not tax-mode?)        ; Do Txf mode
           (begin
             (gnc:html-document-set-export-string
              doc (call-with-output-string
@@ -4058,40 +4056,40 @@
                        (map (cut handle-level-x-account 1 <>) selected-accounts)
                        "</WinstonAusgang>")
                       port "taxtxf-de.scm - "))))            doc)
-          (begin			; else do tax report
-            (gnc:html-document-set-style! 
+          (begin            ; else do tax report
+            (gnc:html-document-set-style!
              doc "blue"
              'tag "font"
              'attribute (list "color" "#0000ff"))
-            
-            (gnc:html-document-set-style! 
+
+            (gnc:html-document-set-style!
              doc "income"
              'tag "font"
              'attribute (list "color" "#0000ff"))
-            
-            (gnc:html-document-set-style! 
+
+            (gnc:html-document-set-style!
              doc "expense"
              'tag "font"
              'attribute (list "color" "#ff0000"))
-            
+
             (gnc:html-document-set-style!
              doc "account-header"
              'tag "th"
              'attribute (list "align" "left"))
-            
+
             (gnc:html-document-set-title! doc report-name)
-            
-            (gnc:html-document-add-object! 
-             doc (gnc:make-html-text         
-                  (gnc:html-markup 
+
+            (gnc:html-document-add-object!
+             doc (gnc:make-html-text
+                  (gnc:html-markup
                    "center"
                    (gnc:html-markup-p
                     (gnc:html-markup/format
                      (G_ "Period from ~a to ~a") from-date to-date)))))
-            
+
             (gnc:html-document-add-object!
              doc (gnc:make-html-text
-                  (gnc:html-markup 
+                  (gnc:html-markup
                    "center"
                    (gnc:html-markup
                     "blue"
@@ -4100,15 +4098,15 @@
 Diese XML-Datei enthält dann die geschlüsselten USt-Kennzahlen und zu diesen die summierten Werte für den ELSTER-Export.<br>
 Bei Umsätzen werden nur voll Beträge ausgewiesen, bei Steuerkennzahlen auch die Dezimalstellen, aber ohne Komma.<br>
 Klicken Sie auf »Exportieren« , um den Export durchzuführen.")))))
-            
+
             (txf-print-dups doc)
-            
+
             (gnc:html-document-add-object! doc table)
-            
+
             (set! txf-dups-alist '())
             (map (lambda (x) (handle-level-x-account 1 x))
                  selected-accounts)
-            
+
             (if (null? selected-accounts)
                 (gnc:html-document-add-object!
                  doc
@@ -4117,7 +4115,7 @@ Klicken Sie auf »Exportieren« , um den Export durchzuführen.")))))
          "Keine Steuer-relevanten Konten gefunden.<br>
 Gehen Sie zu Bearbeiten -> Optionen Steuerbericht, um Konten entsprechend einzurichten."))))
 
-	    (gnc:report-finished)
+        (gnc:report-finished)
             doc)))))
 
 ;; 2020-08-07 JW ;;;;;;;;;;;;;;;;;;;; Einkommensteuerbericht ;;;;;;;;;;;;;;;
@@ -4149,9 +4147,8 @@ Income Tax accounts.")
                   report-obj
                   #f
                   file-name)))
-                  
 
-;; 2020-08-07 JW ;;;;;;;;;;;;;;;;;;;; Umsatzsteuerreport ;;;;;;;;;;;;;;;;;;              
+;; 2020-08-07 JW ;;;;;;;;;;;;;;;;;;;; Umsatzsteuerreport ;;;;;;;;;;;;;;;;;;
 ;; (gnc:define-report-UST
 (gnc:define-report
  'version 1
@@ -4179,4 +4176,3 @@ Deductible Expenses.")
                   report-obj
                   #f
                   file-name)))
-
